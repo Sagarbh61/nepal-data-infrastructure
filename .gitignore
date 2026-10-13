@@ -1,0 +1,25 @@
+
+# Virtual environment
+.venv/
+
+# Environment variables and secrets
+.env
+.env.*
+
+# Allow the example configuration template
+!.env.example
+
+# Python-generated files
+__pycache__/
+*.py[cod]
+
+# Test and coverage artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local database files
+db.sqlite3
+# Census datasets kept locally; obtain from the official source
+data/raw/
+data/processed/
