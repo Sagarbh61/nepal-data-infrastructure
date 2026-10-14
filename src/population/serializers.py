@@ -6,6 +6,7 @@ class LocalGovernmentPopulationSerializer(serializers.ModelSerializer):
   class Meta:
     model = LocalGovernmentPopulation
     fields = [
+      "census_year",
       "province_code",
       "district_code",
       "local_government_code",

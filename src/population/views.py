@@ -16,6 +16,19 @@ class LocalGovernmentPopulationListView(generics.ListAPIView):
 
     province_code = self.request.query_params.get("province_code")
     district_code = self.request.query_params.get("district_code")
+    local_government_code = self.request.query_params.get("local_government_code")
+    census_year = self.request.query_params.get("census_year")
+
+    if census_year is not None:
+      try:
+        census_year = int(census_year)
+      except ValueError:
+        raise ValidationError("The census year must be an integer.")
+
+      if census_year < 1:
+        raise ValidationError("The census year must be positive.")
+
+      queryset = queryset.filter(census_year=census_year)
 
     if province_code is not None:
       try:
@@ -33,10 +46,31 @@ class LocalGovernmentPopulationListView(generics.ListAPIView):
         district_code = int(district_code)
       except ValueError:
         raise ValidationError("The district code must be an integer.")
+
+      if district_code < 1:
+        raise ValidationError("The district code must be a positive integer.")
+
+      district_queryset = LocalGovernmentPopulation.objects.filter(district_code=district_code)
+
+      if province_code is not None:
+        district_queryset = district_queryset.filter(province_code=province_code)
+
+      if not district_queryset.exists():
+          raise ValidationError("The specified district does not exist for the selected province.")
+
       queryset = queryset.filter(district_code=district_code)
 
-    if district_code is not None and province_code is not None:
-      if not LocalGovernmentPopulation.objects.all().filter(district_code=district_code, province_code=province_code).exists():
-        raise ValidationError("This combination of province code and district code does not exists.")
+
+    if local_government_code is not None:
+      try:
+        local_government_code = int(local_government_code)
+      except ValueError:
+        raise ValidationError("The local government code must be an integer.")
+
+      if local_government_code < 1 or local_government_code > 98:
+        raise ValidationError("The local government code must be between 1 and 98.")
+
+      queryset = queryset.filter(local_government_code=local_government_code)
+
 
     return queryset
