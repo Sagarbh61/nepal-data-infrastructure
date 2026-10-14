@@ -1,38 +1,35 @@
 # Nepal Data Infrastructure
 
-Nepal Data Infrastructure (NDI) is a data engineering project focused on making Nepal-specific data easier to discover, validate, transform, and query.
+Nepal Data Infrastructure (NDI) is a data engineering project for collecting, validating, and working with Nepal-specific datasets.
 
-The initial implementation uses Nepal's National Population and Housing Census 2021 (NPHC 2021) to build a reproducible data pipeline and a read-only REST API backed by PostgreSQL.
+The first implementation uses population data from Nepal's National Population and Housing Census 2021 (NPHC 2021). It includes a data processing pipeline, a PostgreSQL database, and a read-only REST API built with Django REST Framework.
 
 ## Current Dataset
 
-* **Dataset:** Population by Sex, National Population and Housing Census 2021
+* **Dataset:** Population by Sex, NPHC 2021
 * **Source:** [National Statistics Office census dataset downloads](https://censusresults.nsonepal.gov.np/downloads/census-dataset)
-* **Expected raw file:** `data/raw/nphc_2021/Indv01_PopulationBySex.csv`
-* **Generated output:** `data/processed/nphc_2021/local_government_population.csv`
-* **Coverage:** 753 local-government records
-* **Schema:** 10 columns covering geographic identifiers, geographic names, household counts, and population totals by sex
+* **Raw file:** `data/raw/nphc_2021/Indv01_PopulationBySex.csv`
+* **Processed file:** `data/processed/nphc_2021/local_government_population.csv`
+* **Coverage:** 753 local governments
+* **Schema:** 10 columns covering geographic identifiers, names, households, and population counts by sex
 
-The CSV files are not included in this repository. Obtain the dataset from the official source and place it at the expected path before running the pipeline. Check the source's terms of use before redistributing the dataset.
+The dataset files are not included in this repository. Download the CSV from the official source and place it at the path shown above. Check the source's terms of use before redistributing the data.
 
-All population figures refer to the 2021 census, not current population estimates.
+Population figures refer to the 2021 census, not current estimates.
 
-## Features
+## What It Does
 
-* Profile raw census data, including record types, missing values, and potential duplicates.
-* Validate population arithmetic, geographic identifiers, and aggregate consistency.
-* Transform raw records into a consistent local-government dataset.
-* Import validated records into PostgreSQL.
-* Expose population records through Django REST Framework.
-* Filter API results by province or district.
-* Paginate API responses.
-* Test the processing pipeline, database import, and API behavior.
+* Profiles the raw census data and checks for missing values and duplicate geographic keys.
+* Validates population totals and geographic relationships.
+* Converts the source CSV into a consistent local-government dataset.
+* Imports validated records into PostgreSQL.
+* Provides a read-only API with geographic filters and pagination.
+* Tests the pipeline, database import, and API.
 
-## Technology Stack
+## Tech Stack
 
 * Python
-* Django
-* Django REST Framework
+* Django and Django REST Framework
 * PostgreSQL
 * pytest and pytest-django
 * python-dotenv
@@ -42,15 +39,15 @@ All population figures refer to the 2021 census, not current population estimate
 ```text
 nepal-data-infrastructure/
 ├── data/
-│   ├── raw/                  # Local source files, not committed
-│   └── processed/            # Generated datasets, not committed
+│   ├── raw/                  # Source files, excluded from Git
+│   └── processed/            # Generated datasets, excluded from Git
 ├── src/
-│   ├── config/               # Django project configuration
+│   ├── config/               # Django configuration
 │   ├── ndi/
 │   │   ├── profiling/
 │   │   ├── transformation/
 │   │   └── validation/
-│   ├── population/           # Models, API, and import command
+│   ├── population/           # Database model, API, import command
 │   └── tests/
 ├── .env.example
 ├── .gitignore
@@ -81,42 +78,40 @@ py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-### 4. Obtain the source dataset
+### 4. Add the source data
 
-Download the appropriate NPHC 2021 population-by-sex CSV from the official source listed above.
-
-Place it at:
+Download the NPHC 2021 population-by-sex CSV and place it here:
 
 ```text
 data/raw/nphc_2021/Indv01_PopulationBySex.csv
 ```
 
-The profiling, validation, and transformation scripts expect this path. The raw dataset is excluded from Git.
+The pipeline expects this file at that location. Source data is excluded from Git.
 
-### 5. Configure environment variables
+### 5. Configure the environment
 
-Create your local `.env` file from the template:
+Create a local environment file:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Edit `.env` and configure:
+Edit `.env` with your PostgreSQL connection details and Django settings:
 
-* `DJANGO_SECRET_KEY`: a unique, private Django secret key.
-* `DJANGO_DEBUG`: `True` for local development only.
-* `DB_NAME`: the PostgreSQL database name.
-* `DB_USER`: your PostgreSQL username.
-* `DB_PASSWORD`: your PostgreSQL password.
-* `DB_HOST` and `DB_PORT`: your database connection settings.
+* `DJANGO_SECRET_KEY`: a private secret key for Django.
+* `DJANGO_DEBUG`: set to `True` for local development only.
+* `DB_NAME`: database name.
+* `DB_USER`: PostgreSQL username.
+* `DB_PASSWORD`: PostgreSQL password.
+* `DB_HOST` and `DB_PORT`: database connection settings.
 
-Create an empty PostgreSQL database with the name configured in `DB_NAME`. Ensure the configured user has permission to access it.
+Create the PostgreSQL database specified by `DB_NAME` and ensure the configured user has access to it.
 
-Never commit `.env` or real credentials.
+Do not commit `.env` or real credentials.
 
 ## Data Pipeline
 
-Run the following commands from the repository root, after installing dependencies and obtaining the source dataset.
+Run these commands from the repository root after completing setup.
 
 ### 1. Profile the source data
 
@@ -124,15 +119,15 @@ Run the following commands from the repository root, after installing dependenci
 .\.venv\Scripts\python.exe src\ndi\profiling\profile_population.py
 ```
 
-This reports the source structure, geographic record types, missing values, duplicate keys, and population arithmetic issues.
+This reports the structure of the CSV, record types, missing values, duplicate geographic keys, and population arithmetic issues.
 
-### 2. Validate the source data
+### 2. Validate the data
 
 ```powershell
 .\.venv\Scripts\python.exe src\ndi\validation\validate_population.py
 ```
 
-This checks population arithmetic, geographic keys and hierarchy, and aggregate reconciliation.
+This checks population totals, geographic identifiers and hierarchy, and aggregate consistency.
 
 ### 3. Transform the data
 
@@ -140,76 +135,72 @@ This checks population arithmetic, geographic keys and hierarchy, and aggregate 
 .\.venv\Scripts\python.exe src\ndi\transformation\transform_population.py
 ```
 
-This selects local-government records, standardizes column names, validates the output, and writes the processed CSV to:
+The transformation selects local-government records, standardizes the column names, and writes the processed CSV to:
 
-`data/processed/nphc_2021/local_government_population.csv`
+```text
+data/processed/nphc_2021/local_government_population.csv
+```
 
 The expected output contains 753 records and 10 columns.
 
 ### 4. Import into PostgreSQL
 
-Apply Django migrations:
+Apply the database migrations:
 
 ```powershell
 .\.venv\Scripts\python.exe src\manage.py migrate
 ```
 
-Import the processed data:
+Import the processed dataset:
 
 ```powershell
 .\.venv\Scripts\python.exe src\manage.py import_population
 ```
 
-The import command checks the CSV schema, numeric fields, population arithmetic, geographic keys, and expected record count before writing records. The database operation is atomic, and rerunning the command updates matching geographic records.
+The import command checks the schema, numeric fields, population arithmetic, geographic keys, and expected record count before writing to the database. The operation is atomic, and rerunning the command updates matching geographic records.
 
 ## API
 
-Start the local development server:
+The API provides read-only access to population records stored in PostgreSQL.
+
+Start the development server:
 
 ```powershell
 .\.venv\Scripts\python.exe src\manage.py runserver
 ```
 
-The population endpoint is available at:
+Endpoint:
 
-`http://127.0.0.1:8000/api/population/`
+```text
+http://127.0.0.1:8000/api/population/
+```
 
-### Supported query parameters
+Records can be filtered by census year, province, district, and local-government code. Responses use page-number pagination, with 100 records per page.
 
-| Parameter       | Purpose              | Example                             |
-| --------------- | -------------------- | ----------------------------------- |
-| `province_code` | Filter by province   | `/api/population/?province_code=1`  |
-| `district_code` | Filter by district   | `/api/population/?district_code=72` |
-| `page`          | Select a result page | `/api/population/?page=2`           |
-
-Filters can be combined:
-
-`/api/population/?province_code=7&district_code=72`
-
-Responses contain a total count, next and previous page links, and a `results` array. The configured page size is 100 records.
-
-The endpoint is read-only. Invalid query values and invalid province-district combinations are rejected.
+See the [Population API Reference](src/docs/api.md) for query parameters, response fields, pagination, and validation behavior.
 
 ## Tests
 
-Run the complete test suite from the repository root:
+Run the test suite:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -v
 ```
 
-The current test suite contains 30 passing tests covering data transformation, database import, and API behavior.
+The tests cover data transformation, database import, and API behavior. Update the test count here when the suite changes rather than maintaining a number that can quickly become outdated.
 
 ## Data Quality and Limitations
 
-The implemented checks verify internal consistency, including whether male and female population counts sum to the reported total, geographic keys are unique, and aggregates reconcile with their underlying records.
+The validation checks cover internal consistency, including population totals, geographic key uniqueness, and reconciliation between aggregate and underlying records.
 
-Passing these checks does not independently establish that every source figure is accurate. The project currently focuses on a single census dataset and is under active development.
+These checks can identify inconsistencies, but they do not independently verify the accuracy of every figure published in the source data.
+
+The project currently focuses on one census dataset and is still under development.
 
 ## Roadmap
 
 * Improve geographic standardization and data provenance.
-* Expand data validation and automated test coverage.
-* Add further Nepal-specific datasets.
-* Build a frontend dashboard with geographic filters, visualizations, and analytics.
-* Explore public deployment and broader data access.
+* Expand validation rules and test coverage.
+* Add more datasets relevant to Nepal.
+* Build a frontend with geographic filters, charts, and analytics.
+* Explore public deployment.
