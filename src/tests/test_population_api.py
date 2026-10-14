@@ -343,3 +343,113 @@ def test_population_api_rejects_non_positive_census_year():
     response = client.get("/api/population/?census_year=0")
 
     assert response.status_code == 400
+
+@pytest.mark.django_db
+
+def test_population_api_combines_province_and_district_filters():
+  LocalGovernmentPopulation.objects.create(
+        census_year=2021,
+        province_code=1,
+        district_code=1,
+        local_government_code=1,
+        province_name="Province-1",
+        district_name="District A",
+        local_government_name="Municipality A",
+        households=100,
+        population_total=400,
+        population_male=210,
+        population_female=190,
+    )
+
+  LocalGovernmentPopulation.objects.create(
+        census_year=2021,
+        province_code=1,
+        district_code=2,
+        local_government_code=2,
+        province_name="Province-1",
+        district_name="District B",
+        local_government_name="Municipality B",
+        households=200,
+        population_total=700,
+        population_male=360,
+        population_female=340,
+    )
+
+  LocalGovernmentPopulation.objects.create(
+        census_year=2021,
+        province_code=2,
+        district_code=3,
+        local_government_code=3,
+        province_name="Province-2",
+        district_name="District C",
+        local_government_name="Municipality C",
+        households=300,
+        population_total=900,
+        population_male=460,
+        population_female=440,
+    )
+
+  client = APIClient()
+
+  response = client.get("/api/population/?province_code=1&district_code=2")
+
+  assert response.status_code == 200
+  assert response.data["count"] == 1
+
+  record = response.data["results"][0]
+  assert record["province_code"] == 1
+  assert record["district_code"] == 2
+  assert record["local_government_name"] == "Municipality B"
+
+
+@pytest.mark.django_db
+def test_population_api_returns_empty_results_when_no_records_match():
+    LocalGovernmentPopulation.objects.create(
+        census_year=2021,
+        province_code=1,
+        district_code=1,
+        local_government_code=1,
+        province_name="Province-1",
+        district_name="District A",
+        local_government_name="Municipality A",
+        households=100,
+        population_total=400,
+        population_male=210,
+        population_female=190,
+    )
+
+    response = APIClient().get(
+        "/api/population/?province_code=1&local_government_code=2"
+    )
+
+    assert response.status_code == 200
+    assert response.data["count"] == 0
+    assert response.data["results"] == []
+
+
+@pytest.mark.django_db
+def test_population_api_rejects_non_integer_page():
+    response = APIClient().get("/api/population/?page=abc")
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_population_api_rejects_page_beyond_available_results():
+    LocalGovernmentPopulation.objects.create(
+        census_year=2021,
+        province_code=1,
+        district_code=1,
+        local_government_code=1,
+        province_name="Province-1",
+        district_name="District A",
+        local_government_name="Municipality A",
+        households=100,
+        population_total=400,
+        population_male=210,
+        population_female=190,
+    )
+
+    response = APIClient().get("/api/population/?page=9999")
+
+    assert response.status_code == 404
