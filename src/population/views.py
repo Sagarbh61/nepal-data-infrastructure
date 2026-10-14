@@ -56,7 +56,7 @@ class LocalGovernmentPopulationListView(generics.ListAPIView):
         district_queryset = district_queryset.filter(province_code=province_code)
 
       if not district_queryset.exists():
-          raise ValidationError("The specified district does not exist for the selected province.")
+        raise ValidationError("The specified district does not exist for the selected province.")
 
       queryset = queryset.filter(district_code=district_code)
 

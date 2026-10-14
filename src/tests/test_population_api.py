@@ -217,13 +217,13 @@ def test_population_api_includes_census_year():
         province_name="Province-1",
         district_name="Taplejung",
         local_government_name="Municipality A",
-        household=100,
+        households=100,
         population_total=400,
         population_male=210,
         population_female=190,
     )
 
-    response = APIClient().get("/api.population/")
+    response = APIClient().get("/api/population/")
 
     assert response.status_code == 200
     assert response.data["results"][0]["census_year"] == 2021
@@ -285,7 +285,7 @@ def test_population_api_rejects_non_positive_district_code():
 
 @pytest.mark.django_db
 def test_population_api_rejects_unknown_district_codes():
-    client = APIClient ()
+    client = APIClient()
     response = client.get("/api/population/?district_code=999")
 
     assert response.status_code == 400
