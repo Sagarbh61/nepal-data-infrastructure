@@ -273,7 +273,7 @@ $env:PYTHONPATH = "src"
 .\.venv\Scripts\python.exe -m pytest src\tests -q
 ```
 
-The current verified baseline is **41 passing tests**. The suite covers data transformation, database import behavior, validation, API filtering, pagination, and decimal representation.
+The current verified baseline is **61 passing tests**. The suite covers data transformation, database import behavior, validation, API filtering, pagination, and decimal representation.
 
 The test count is a snapshot and should be updated when the suite changes.
 
