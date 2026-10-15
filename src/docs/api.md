@@ -178,3 +178,167 @@ The precise JSON error structure can vary depending on the validation path. The 
 * A valid filter can return an empty `results` array if no records match.
 * Geographic codes are dataset identifiers; a code should not be assumed to identify the same place across every dataset or census year without checking the relevant geographic definitions.
 * This reference describes the current implementation and should be updated when endpoint behavior changes.
+
+
+---
+
+# World Development Indicators API Reference
+
+## Overview
+
+The Nepal Data Infrastructure (NDI) Indicators API provides read-only access to indicator metadata and country-year observations imported from the World Bank's World Development Indicators (WDI) dataset.
+
+- **Base URL (local development):** `http://127.0.0.1:8000`
+- **Response format:** JSON
+- **Pagination:** Page-number pagination, 100 records per page
+- **Authentication:** No authentication is currently configured for these endpoints.
+
+## 1. List indicators
+
+**Endpoint:** `GET /api/indicators/`
+
+Returns the available indicators, including their codes, names, and sources.
+
+Example:
+
+```http
+GET /api/indicators/
+```
+
+Each indicator contains:
+
+| Field | Type | Description |
+|---|---|---|
+| `code` | String | Unique indicator code |
+| `name` | String | Indicator name |
+| `source` | String | Data source associated with the indicator |
+
+## 2. Retrieve an indicator
+
+**Endpoint:** `GET /api/indicators/{code}/`
+
+Returns a single indicator identified by its code.
+
+Example:
+
+```http
+GET /api/indicators/NY.GDP.MKTP.KD.ZG/
+```
+
+The endpoint returns the indicator metadata. A code that does not exist returns HTTP `404 Not Found`.
+
+## 3. List and filter observations
+
+**Endpoint:** `GET /api/observations/`
+
+Returns indicator observations associated with countries and years.
+
+### Query parameters
+
+| Parameter | Type | Purpose | Example |
+|---|---|---|---|
+| `country_code` | String | Filter by a three-letter country code | `?country_code=NPL` |
+| `year` | Integer | Filter by observation year, from 1960 through 2100 | `?year=2020` |
+| `indicator_code` | String | Filter by exact indicator code | `?indicator_code=NY.GDP.MKTP.KD.ZG` |
+| `page` | Integer | Select a page of results | `?page=2` |
+
+All filters are optional and can be combined. Country codes are normalized to uppercase before filtering.
+
+### Examples
+
+Get observations for Nepal:
+
+```http
+GET /api/observations/?country_code=NPL
+```
+
+Get observations for 2020:
+
+```http
+GET /api/observations/?year=2020
+```
+
+Get observations for a particular indicator:
+
+```http
+GET /api/observations/?indicator_code=NY.GDP.MKTP.KD.ZG
+```
+
+Combine all three filters:
+
+```http
+GET /api/observations/?country_code=NPL&year=2020&indicator_code=NY.GDP.MKTP.KD.ZG
+```
+
+### Observation fields
+
+| Field | Type | Description |
+|---|---|---|
+| `indicator_code` | String | Code of the associated indicator |
+| `country_code` | String | Three-letter country code |
+| `year` | Integer | Observation year |
+| `value` | String or null | Decimal value, or `null` if the observation is missing |
+
+Decimal values are returned as strings to avoid losing precision through floating-point conversion. Insignificant trailing zeros are removed from the serialized representation.
+
+### Missing observations
+
+Missing WDI values are represented as `null` in the API response. A missing value should not be interpreted as zero.
+
+## 4. Pagination
+
+Indicator and observation list endpoints use page-number pagination, with a default page size of 100 records.
+
+Paginated responses include:
+
+| Field | Meaning |
+|---|---|
+| `count` | Total number of matching records |
+| `next` | URL for the next page, or `null` |
+| `previous` | URL for the previous page, or `null` |
+| `results` | Records on the current page |
+
+Example:
+
+```http
+GET /api/observations/?country_code=NPL&page=2
+```
+
+## 5. Validation and errors
+
+Invalid observation query parameters return HTTP `400 Bad Request`.
+
+Examples include:
+
+- A country code that is not three ASCII letters.
+- A year that is not an integer.
+- A year outside the accepted range of 1960–2100.
+- An empty indicator code.
+
+Example:
+
+```http
+GET /api/observations/?year=not-a-year
+```
+
+The API returns a validation error identifying the `year` parameter.
+
+## 6. Data coverage
+
+The imported WDI dataset currently contains:
+
+- 1,498 indicators.
+- 66 years per indicator in the processed dataset.
+- 98,868 country-year-indicator observation records.
+- 40,896 non-missing values.
+- 57,972 missing values.
+
+These figures describe the currently processed dataset, not necessarily the complete WDI database maintained by the World Bank.
+
+## 7. Current limitations
+
+- The endpoints are read-only.
+- The current processed WDI dataset is for Nepal.
+- The observation API exposes a single country code, year, and indicator code as filters; it does not yet provide a dedicated time-series endpoint.
+- No authentication or authorization is currently configured.
+- This reference should be updated when API behavior changes.
