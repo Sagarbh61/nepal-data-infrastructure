@@ -56,7 +56,9 @@ def classify_row(prov, dist, gapa):
 
 def load_records():
     if not RAW_FILE.exists():
-        raise FileNotFoundError(f"Source file not found: {RAW_FILE}")
+        raise FileNotFoundError(
+            f"Source file not found: {RAW_FILE}"
+        )
 
     with RAW_FILE.open(
         "r", encoding="utf-8-sig", newline=""
@@ -82,6 +84,7 @@ def load_records():
                 "raw": raw,
                 "codes": None,
                 "type": None,
+                "values": {},
             }
 
             # Parse geographic codes.
@@ -91,18 +94,21 @@ def load_records():
                 gapa = int(raw["gapa"])
 
                 record["codes"] = (prov, dist, gapa)
-                record["type"] = classify_row(prov, dist, gapa)
+                record["type"] = classify_row(
+                    prov, dist, gapa
+                )
 
             except (ValueError, TypeError):
                 pass
 
             # Parse numeric measures.
-            record["values"] = {}
-
             for field in NUMERIC_FIELDS:
                 try:
-                    record["values"][field] = int(raw[field])
-                except (ValueError, TypeError):
+                    raw_value = raw[field].strip()
+                    record["values"][field] = (
+                        int(raw_value) if raw_value else None
+                    )
+                except (ValueError, TypeError, AttributeError):
                     record["values"][field] = None
 
             records.append(record)
@@ -111,7 +117,7 @@ def load_records():
 
 
 # --------------------------------------------------
-# 4. VALIDATION HELPERS
+# 4. VALIDATE NUMERIC VALUES
 # --------------------------------------------------
 
 def validate_population_arithmetic(records, issues):
@@ -136,12 +142,35 @@ def validate_population_arithmetic(records, issues):
         male = values["male"]
         female = values["female"]
 
-        if all(v is not None for v in [total, male, female]):
+        if all(
+            value is not None
+            for value in (total, male, female)
+        ):
             if male + female != total:
                 issues.append(
                     f"Line {record['line']}: "
-                    f"male + female != total"
+                    "male + female != total"
                 )
+
+
+# --------------------------------------------------
+# 5. VALIDATE GEOGRAPHIC KEYS AND HIERARCHY
+# --------------------------------------------------
+
+
+def normalize_name(value):
+    """Normalize capitalization, whitespace, and punctuation for comparison."""
+    if value is None:
+        return ""
+
+    # Keep only letters and digits so "PROVINCE - 1" and
+    # "Province-1" normalize to the same value.
+    return "".join(
+        character.casefold()
+        for character in value
+        if character.isalnum()
+    )
+
 
 
 def validate_keys_and_hierarchy(records, issues):
@@ -157,10 +186,10 @@ def validate_keys_and_hierarchy(records, issues):
                 f"Duplicate geographic key {key}: {count} records"
             )
 
-    # Index the aggregate records by their source codes.
     provinces = {}
     districts = {}
 
+    # Index aggregate records for hierarchy and name comparisons.
     for record in records:
         codes = record["codes"]
 
@@ -170,7 +199,14 @@ def validate_keys_and_hierarchy(records, issues):
             )
             continue
 
-        prov, dist, gapa = codes
+        if record["type"] is None:
+            issues.append(
+                f"Line {record['line']}: "
+                f"unrecognized geographic code combination {codes}"
+            )
+            continue
+
+        prov, dist, _ = codes
 
         if record["type"] == "province":
             provinces[prov] = record
@@ -178,31 +214,79 @@ def validate_keys_and_hierarchy(records, issues):
         elif record["type"] == "district":
             districts[(prov, dist)] = record
 
+    # Check parent records and consistency of names.
     for record in records:
-        if record["type"] not in {
+        row_type = record["type"]
+        codes = record["codes"]
+
+        if codes is None or row_type is None:
+            continue
+
+        if row_type not in {
             "district", "local_government", "institutional"
         }:
             continue
 
-        prov, dist, _ = record["codes"]
+        prov, dist, _ = codes
+        province = provinces.get(prov)
 
-        if prov not in provinces:
+        if province is None:
             issues.append(
                 f"Line {record['line']}: "
                 f"province aggregate missing for code {prov}"
             )
+        else:
+            expected_name = normalize_name(
+                province["raw"].get("provname")
+            )
+            actual_name = normalize_name(
+                record["raw"].get("provname")
+            )
 
-        if record["type"] in {"local_government", "institutional"}:
-            if (prov, dist) not in districts:
+            if actual_name != expected_name:
+                issues.append(
+                    f"Line {record['line']}: province name "
+                    f"{record['raw'].get('provname')!r} does not match "
+                    f"province aggregate name "
+                    f"{province['raw'].get('provname')!r} "
+                    f"for code {prov}"
+                )
+
+        if row_type in {"local_government", "institutional"}:
+            district = districts.get((prov, dist))
+
+            if district is None:
                 issues.append(
                     f"Line {record['line']}: "
                     f"district aggregate missing for codes {(prov, dist)}"
                 )
+            else:
+                expected_name = normalize_name(
+                    district["raw"].get("dname")
+                )
+                actual_name = normalize_name(
+                    record["raw"].get("dname")
+                )
 
+                if actual_name != expected_name:
+                    issues.append(
+                        f"Line {record['line']}: district name "
+                        f"{record['raw'].get('dname')!r} does not match "
+                        f"district aggregate name "
+                        f"{district['raw'].get('dname')!r} "
+                        f"for codes {(prov, dist)}"
+                    )
+
+
+# --------------------------------------------------
+# 6. RECONCILE AGGREGATE TOTALS
+# --------------------------------------------------
 
 def reconcile_aggregates(parent, children, description, issues):
     if not children:
-        issues.append(f"{description}: no child records found")
+        issues.append(
+            f"{description}: no child records found"
+        )
         return
 
     for field in NUMERIC_FIELDS:
@@ -211,7 +295,7 @@ def reconcile_aggregates(parent, children, description, issues):
             child["values"][field] for child in children
         ]
 
-        # Don't report misleading sums when inputs are invalid.
+        # Avoid misleading arithmetic when inputs are invalid.
         if parent_value is None or any(
             value is None for value in child_values
         ):
@@ -226,10 +310,6 @@ def reconcile_aggregates(parent, children, description, issues):
             )
 
 
-# --------------------------------------------------
-# 5. VALIDATE AGGREGATE TOTALS
-# --------------------------------------------------
-
 def validate_reconciliation(records, issues):
     national_rows = []
     province_rows = {}
@@ -242,6 +322,10 @@ def validate_reconciliation(records, issues):
     for record in records:
         row_type = record["type"]
         codes = record["codes"]
+
+        # Invalid or unrecognized codes cannot safely be reconciled.
+        if codes is None or row_type is None:
+            continue
 
         if row_type == "national":
             national_rows.append(record)
@@ -264,7 +348,7 @@ def validate_reconciliation(records, issues):
             f"Expected 1 national aggregate, found {len(national_rows)}"
         )
 
-    # Each district = local governments + institutional record.
+    # Each district = local governments + institutional records.
     for key, district in district_rows.items():
         reconcile_aggregates(
             district,
@@ -293,7 +377,7 @@ def validate_reconciliation(records, issues):
 
 
 # --------------------------------------------------
-# 6. RUN VALIDATION AND PRINT RESULTS
+# 7. RUN VALIDATION AND PRINT RESULTS
 # --------------------------------------------------
 
 def validate_population():
@@ -333,6 +417,8 @@ def validate_population():
 
     print("\nRaw source file was not modified.")
     print("=" * 55)
+
+    return issues
 
 
 if __name__ == "__main__":

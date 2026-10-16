@@ -1,0 +1,51 @@
+.hero{
+  background-color: #FDFBFB;
+  padding: 100px 40px;
+
+
+}
+
+.hero h1{
+  color:#00251A;
+  line-height: 1.1;
+  font-size: 50px;
+  margin-bottom: 10px;
+}
+
+.hero .hero-description{
+  font-size: 17px;
+  letter-spacing: -0.5px;
+  margin-bottom: 20px;
+}
+.hero-actions{
+  display: inline-flex;
+  gap:20px;
+}
+
+
+.hero-actions a{
+  border:1px solid #d1c9c9;
+  padding:10px 12px;
+  border-radius: 10px;
+  font-size: 15px;
+  transition:background-color 0.3s ease-in-out, transform 0.2s ease;
+}
+
+.hero-actions .about{
+background-color: #29513d;
+color:#fff;
+}
+
+.hero-actions a:first-child:hover{
+background-color:#FEFCFC;
+transform: translateY(-4px);
+color:#111;
+
+}
+
+.hero-actions .about:hover{
+  color:#111;
+background-color:#FEFCFC;
+border:1px solid #111;
+
+}

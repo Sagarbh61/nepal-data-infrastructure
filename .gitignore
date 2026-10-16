@@ -23,3 +23,10 @@ db.sqlite3
 # Census datasets kept locally; obtain from the official source
 data/raw/
 data/processed/
+
+# Frontend dependencies and build output
+frontend/node_modules/
+frontend/dist/
+
+# Local editor settings
+.vscode/
