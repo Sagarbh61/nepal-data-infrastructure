@@ -1,4 +1,5 @@
 import './hero.css';
+import { ArrowUpRight } from 'lucide-react';
 
 function Hero(){
   return(
@@ -7,7 +8,7 @@ function Hero(){
       <p className='hero-description'>Explore statistics and numbers behind Nepal's Economy.</p>
 
       <div className="hero-actions">
-        <a href="/" className='explore'>Explore the data</a>
+        <a href="/" className='explore'>Explore the data<ArrowUpRight size={18} /></a>
         <a href="/" className='about'>About the project</a>
       </div>
     </section>

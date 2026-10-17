@@ -1,0 +1,259 @@
+
+.indicator-detail-page {
+  color: #202520;
+  margin: 0 auto;
+}
+
+
+.detail-header {
+  text-align: left;
+  padding: 40px;
+  border-bottom: 1px solid #e5e8e5;
+  box-shadow: none;
+}
+
+.detail-header h1 {
+  max-width: 900px;
+  margin: 12px 0;
+  font-size: clamp(28px, 3vw, 38px);
+  line-height: 1.25;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+
+.detail-source {
+  color: #656b66;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.detail-code {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 7px 12px;
+  border: 1px solid #e5e8e5;
+  border-radius: 5px;
+  color: #29513d;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.detail-content {
+  padding: 40px;
+}
+
+.detail-back-link {
+  display: inline-block;
+  margin-bottom: 32px;
+  color: #29513d;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.detail-back-link:hover {
+  text-decoration: underline;
+}
+
+.observations-heading {
+  margin-bottom: 24px;
+}
+
+.observations-heading h2 {
+  margin: 0 0 10px;
+  font-size: 22px;
+}
+
+.observations-heading p {
+  color: #656b66;
+  line-height: 1.7;
+}
+
+.observation-count {
+  color: #29513d;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.observation-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin: 24px 0;
+  border-top: 1px solid #e5e8e5;
+  border-bottom: 1px solid #e5e8e5;
+}
+
+.observation-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.observation-table th,
+.observation-table td {
+  padding: 15px 18px;
+  border-bottom: 1px solid #e5e8e5;
+}
+
+.observation-table th {
+  background-color: #fdfbfb;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.observation-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.observation-table td:first-child {
+  width: 120px;
+  font-variant-numeric: tabular-nums;
+}
+
+.observation-table td:last-child {
+  font-variant-numeric: tabular-nums;
+}
+
+.detail-status {
+  padding: 24px 0;
+  color: #656b66;
+  line-height: 1.7;
+}
+
+.detail-error {
+  color: #a12828;
+}
+
+
+.chart-section {
+  margin-bottom: 48px;
+}
+
+.indicator-chart {
+  width: 100%;
+  min-width: 0;
+  margin-top: 20px;
+}
+
+.preview-section {
+  border-top: 1px solid #e5e8e5;
+  padding-top: 28px;
+}
+
+.preview-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.full-table-link {
+  flex-shrink: 0;
+  color: #29513d;
+  font-size: 14px;
+  text-decoration: none;
+  margin-top: 4px;
+}
+
+
+.analysis-summary {
+  margin: 32px 0 44px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid #e5e8e5;
+  border-bottom: 1px solid #e5e8e5;
+  margin-top: 20px;
+}
+
+.summary-item {
+  min-width: 0;
+  padding: 20px 18px 20px 0;
+}
+
+.summary-item + .summary-item {
+  border-left: 1px solid #e5e8e5;
+  padding-left: 18px;
+}
+
+.summary-label {
+  margin: 0 0 12px;
+  color: #656b66;
+  font-size: 13px;
+}
+
+.summary-value {
+  margin: 0;
+  color: #202520;
+  font-size: clamp(20px, 2vw, 27px);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-detail {
+  margin: 8px 0 0;
+  color: #656b66;
+  font-size: 12px;
+}
+
+.change-increase {
+  color: #237a45;
+}
+
+.change-decrease {
+  color: #c0392b;
+}
+
+.change-neutral {
+  color: #656b66;
+}
+
+@media (max-width: 760px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .summary-item:nth-child(3) {
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .summary-item:nth-child(n + 3) {
+    border-top: 1px solid #e5e8e5;
+  }
+}
+
+
+.full-table-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .preview-heading {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .indicator-chart {
+    margin-left: -8px;
+  }
+}
+
+
+@media (max-width: 640px) {
+  .detail-header {
+    padding: 56px 20px;
+  }
+
+  .detail-content {
+    padding: 28px 20px;
+  }
+
+  .observation-table th,
+  .observation-table td {
+    padding: 12px;
+  }
+}

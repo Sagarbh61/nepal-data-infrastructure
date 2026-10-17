@@ -7,7 +7,9 @@ The project currently integrates two datasets:
 1. **National Population and Housing Census 2021 (NPHC 2021):** Local-government population and household statistics.
 2. **World Development Indicators (WDI):** Development indicators for Nepal, organized by indicator, country, and year.
 
-The system uses Python for data processing, PostgreSQL for storage, and Django REST Framework for read-only API access. Automated tests cover important parts of the data pipeline, database import process, and API behavior.
+The backend uses Python, PostgreSQL, Django, and Django REST Framework to process datasets and provide read-only API access. A React and TypeScript frontend provides an interface for exploring development indicators and their historical trends.
+
+Automated tests cover important parts of the data pipeline, database import process, validation, and API behavior.
 
 ## Datasets
 
@@ -36,9 +38,9 @@ Population figures refer to the 2021 census, not current population estimates.
 - **Non-missing values:** 40,896
 - **Missing values:** 57,972
 
-The WDI pipeline validates and transforms the source data into an observation-oriented format. Indicator metadata and country-year observations are stored in PostgreSQL through the `indicators` Django app.
+The WDI pipeline validates and transforms the source data into an observation-oriented format. Indicator metadata and country-year observations are stored in PostgreSQL through the Django `indicators` app.
 
-Missing source observations are preserved as missing values rather than converted to zero. Decimal values are validated and handled using decimal arithmetic rather than binary floating-point conversion during transformation.
+Missing source observations are preserved as missing values rather than converted to zero. Decimal values are handled using decimal arithmetic during transformation to avoid unnecessary binary floating-point conversion.
 
 These counts describe the current processed dataset and may change when the source data or processing rules are updated.
 
@@ -55,9 +57,12 @@ Raw and processed data files are excluded from Git. Download the required source
 - Supports repeatable imports without creating duplicate records for existing keys.
 - Exposes population records, indicator metadata, and indicator observations through read-only REST API endpoints.
 - Supports filtering and pagination for API queries.
+- Provides a frontend for browsing indicators and viewing historical trends.
 - Uses automated tests to check transformation, import, validation, and API behavior.
 
 ## Tech Stack
+
+### Backend and data engineering
 
 - Python
 - Django
@@ -66,32 +71,52 @@ Raw and processed data files are excluded from Git. Download the required source
 - pytest and pytest-django
 - python-dotenv
 
+### Frontend
+
+- React
+- TypeScript
+- Vite
+- React Router
+- Recharts
+- Lucide React
+
 ## Project Structure
 
 ```text
 nepal-data-infrastructure/
-├── data/
+├── data/                          # Local datasets; excluded from Git
 │   ├── raw/
 │   │   ├── nphc_2021/
 │   │   └── wdi_nepal/
 │   └── processed/
 │       ├── nphc_2021/
 │       └── wdi_nepal/
+├── frontend/
+│   ├── src/
+│   │   ├── app/                   # Application and routes
+│   │   ├── assets/                # Images and static assets
+│   │   ├── components/
+│   │   │   ├── hero/
+│   │   │   └── navbar/
+│   │   ├── pages/                 # Home, explorer, indicator detail
+│   │   ├── services/              # API client
+│   │   ├── main.tsx
+│   │   └── index.css
+│   ├── package.json
+│   └── vite.config.ts
 ├── src/
-│   ├── config/                 # Django configuration and root URLs
+│   ├── config/                    # Django configuration and root URLs
 │   ├── ndi/
-│   │   ├── profiling/          # Data profiling
-│   │   ├── transformation/     # Data transformation
-│   │   ├── validation/         # Data validation
+│   │   ├── profiling/             # Data profiling
+│   │   ├── transformation/        # Data transformation
+│   │   ├── validation/            # Data validation
 │   │   └── ...
-│   ├── population/             # Population models, API, importer
-│   ├── indicators/             # Indicator models, API, importer
-│   ├── tests/                  # Automated tests
-│   └── docs/
-│       ├── api.md              # API reference
-│       ├── architecture/
-│       ├── data-dictionary/
-│       └── data-sources/
+│   ├── population/                # Population models, API, importer
+│   ├── indicators/                # Indicator models, API, importer
+│   ├── tests/                     # Automated tests
+│   ├── docs/
+│   │   └── api.md                 # API reference
+│   └── manage.py
 ├── .env.example
 ├── .gitignore
 ├── pytest.ini
@@ -108,14 +133,16 @@ git clone https://github.com/Sagarbh61/nepal-data-infrastructure.git
 cd nepal-data-infrastructure
 ```
 
-### 2. Create a virtual environment
+### 2. Create a Python virtual environment
+
+Run from the repository root:
 
 ```powershell
 py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install --upgrade pip
 ```
 
-### 3. Install dependencies
+### 3. Install backend dependencies
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
@@ -140,7 +167,7 @@ Create a local environment file:
 Copy-Item .env.example .env
 ```
 
-Configure the environment variables in `.env`:
+Configure the following environment variables in `.env`:
 
 - `DJANGO_SECRET_KEY`: Private Django secret key.
 - `DJANGO_DEBUG`: Set to `True` for local development only.
@@ -155,7 +182,7 @@ Do not commit `.env` or real credentials.
 
 ### 6. Apply database migrations
 
-From the repository root:
+Run from the repository root:
 
 ```powershell
 .\.venv\Scripts\python.exe src\manage.py migrate
@@ -163,7 +190,7 @@ From the repository root:
 
 ## Data Pipelines
 
-Run the commands from the repository root after completing setup.
+Run the commands from the repository root after completing the setup.
 
 ### 1. NPHC 2021 population pipeline
 
@@ -209,8 +236,6 @@ The WDI pipeline transforms the raw World Bank CSV into an observation-oriented 
 
 #### Transform the data
 
-Run from the repository root:
-
 ```powershell
 .\.venv\Scripts\python.exe src\ndi\transformation\wdi.py
 ```
@@ -219,7 +244,7 @@ By default, the command reads:
 
 `data/raw/wdi_nepal/API_NPL_DS2_en_csv_v2_18651.csv`
 
-It validates the source metadata, year columns, row structure, identifiers, and numeric values, then writes:
+It validates source metadata, year columns, row structure, identifiers, and numeric values, then writes:
 
 `data/processed/wdi_nepal/indicators.csv`
 
@@ -250,9 +275,13 @@ The API is read-only and exposes the following endpoints:
 
 List endpoints use page-number pagination with a default page size of 100 records.
 
+The population API supports filtering by census year, province code, district code, and local-government code. Multiple filters can be combined.
+
 The observation API supports filtering by country code, year, and indicator code. Decimal values are returned as strings to preserve precision, and missing values are represented as `null`.
 
-### Run the development server
+### Run the backend server
+
+From the repository root:
 
 ```powershell
 .\.venv\Scripts\python.exe src\manage.py runserver
@@ -262,20 +291,77 @@ The local API base URL is:
 
 `http://127.0.0.1:8000`
 
-See the [API Reference](src/docs/api.md) for endpoint details, query parameters, response formats, pagination, and validation behavior.
+For endpoint details, query parameters, response formats, pagination, and validation behavior, see the [API Reference](src/docs/api.md).
+
+## Frontend
+
+The project includes a React and TypeScript frontend built with Vite.
+
+The current application includes:
+
+- **Home page:** Landing page for the project.
+- **Indicator explorer:** Browse available development indicators.
+- **Indicator detail page:** View historical observations, trend charts, and summary statistics for an individual indicator.
+
+The frontend currently focuses on WDI indicator exploration. The population API is available in the backend, but population data has not yet been integrated into the frontend.
+
+### Requirements
+
+- Node.js and npm
+- A configured PostgreSQL database
+- The Django backend with the required data imported
+
+### Install frontend dependencies
+
+Open a second terminal at the repository root:
+
+```powershell
+cd frontend
+npm install
+```
+
+### Run the frontend development server
+
+```powershell
+npm run dev
+```
+
+Open the local URL printed by Vite, normally:
+
+`http://localhost:5173`
+
+Keep the Django backend running in the first terminal while using the frontend.
+
+### Build and lint
+
+From the `frontend` directory, build the frontend:
+
+```powershell
+npm run build
+```
+
+Run the linter:
+
+```powershell
+npm run lint
+```
+
+The frontend currently uses `http://127.0.0.1:8000/api` as its API base URL. The backend's CORS configuration must permit the frontend's development origin.
+
+Production API configuration and deployment are future improvements.
 
 ## Tests
 
-Run the complete test suite from the repository root:
+Run the backend test suite from the repository root:
 
 ```powershell
 $env:PYTHONPATH = "src"
 .\.venv\Scripts\python.exe -m pytest src\tests -q
 ```
 
-The current verified baseline is **61 passing tests**. The suite covers data transformation, database import behavior, validation, API filtering, pagination, and decimal representation.
+The suite covers important parts of data transformation, database import behavior, validation, API filtering, pagination, and decimal representation.
 
-The test count is a snapshot and should be updated when the suite changes.
+Run the suite after changes to verify that existing behavior remains correct. Test counts may change as coverage expands.
 
 ## Data Quality and Limitations
 
@@ -285,15 +371,35 @@ Other limitations include:
 
 - The current implementation focuses on selected datasets rather than a comprehensive national data platform.
 - WDI observations currently cover the processed Nepal dataset, not the entire global WDI database.
+- The population frontend integration has not yet been implemented.
 - Geographic identifiers must be interpreted according to the relevant dataset and geographic definitions.
+- Indicator charts and summary statistics should be interpreted in the context of each indicator's units, coverage, and missing observations.
 - The API is read-only and does not currently provide authentication or authorization.
 - Source datasets are managed separately from the Git repository.
+- Production deployment and configuration have not yet been completed.
 
 ## Roadmap
 
-- Improve geographic standardization and data provenance.
+### Data engineering and API
+
 - Expand validation rules and automated test coverage.
+- Improve geographic standardization and data provenance.
 - Add additional datasets relevant to Nepal.
 - Improve API documentation and data dictionaries.
-- Build a frontend with geographic filters, charts, and analytics.
-- Explore public deployment and appropriate access controls.
+- Continue improving API filtering and query efficiency.
+
+### Analytics and frontend
+
+- Audit indicator-level statistical calculations.
+- Add annual absolute and percentage changes with appropriate safeguards.
+- Introduce configurable period comparisons and date ranges.
+- Expand data-coverage, missing-value, and quality information.
+- Develop additional time-series analytics.
+- Integrate population data into the frontend.
+- Expand geographic analysis using Nepal's province, district, and local-government data.
+
+### Deployment
+
+- Improve frontend and backend configuration for deployment.
+- Evaluate suitable hosting and database options.
+- Establish appropriate security, access controls, and operational monitoring before public deployment.

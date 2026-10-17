@@ -1,3 +1,5 @@
+import {Link} from "react-router";
+
 import './navbar.css';
 
 function Navbar() {
@@ -9,15 +11,13 @@ function Navbar() {
           <div className="site-name">Sakshartha</div>
 
           <nav className="nav-links">
-            <a href="/">Explore data</a>
-            <a href="/">Solutions</a>
-            <a href="/">Pricing</a>
+            <Link to="/explore">Explore data</Link>
           </nav>
         </div>
 
         <nav className="nav-actions">
-          <a href="/">Login</a>
-          <a href="/" className='signup-btn'>Sign up</a>
+          <button type="button" className="login-btn" disabled>Login</button>
+          <button type="button" className='signup-btn' disabled>Sign up</button>
         </nav>
 
       </div>
