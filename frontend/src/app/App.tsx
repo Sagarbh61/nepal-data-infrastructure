@@ -8,11 +8,13 @@ import IndicatorDetailPage from "../pages/IndicatorDetailPage";
 import IndicatorChangesPage from "../pages/IndicatorChangesPage";
 import IndicatorObservationsPage from "../pages/IndicatorObservationsPage";
 import PopulationPage from "../pages/PopulationPage";
+import BusinessEnvironmentPage from "../pages/BusinessEnvironmentPage";
 
 function App() {
   return (
     <>
       <Navbar />
+
 
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -22,18 +24,21 @@ function App() {
           path="/indicators/:code/changes"
           element={<IndicatorChangesPage />}
         />
-
         <Route
           path="/indicators/:code/observations"
           element={<IndicatorObservationsPage />}
         />
-
         <Route
           path="/indicators/:code"
           element={<IndicatorDetailPage />}
         />
         <Route path="/population" element={<PopulationPage />} />
+        <Route
+          path="/business-environment"
+          element={<BusinessEnvironmentPage />}
+        />
       </Routes>
+
     </>
   );
 }

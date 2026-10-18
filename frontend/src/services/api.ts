@@ -160,3 +160,50 @@ export async function fetchPopulation(
     results: allRecords,
   };
 }
+
+export interface WBESMetadata {
+  survey: string;
+  survey_period: string;
+  population_covered: string;
+  measure: string;
+  weighting: {
+    primary_weight: string;
+    weighted_share: string;
+    unweighted_share: string;
+  };
+  limitations: string[];
+}
+
+export interface BusinessObstacle {
+  obstacle: string;
+  label: string;
+  weight: string;
+  total_records: number;
+  valid_responses: number;
+  excluded_responses: number;
+  major_or_severe_responses: number;
+  unweighted_share: number;
+  weighted_share: number;
+}
+
+export async function fetchWBESMetadata(): Promise<WBESMetadata> {
+  const response = await fetch(`${API_BASE_URL}/wbes/metadata/`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to load WBES metadata (${response.status})`);
+  }
+
+  return response.json() as Promise<WBESMetadata>;
+}
+
+export async function fetchBusinessObstacles(): Promise<
+  PaginatedResponse<BusinessObstacle>
+> {
+  const response = await fetch(`${API_BASE_URL}/wbes/business-obstacles/`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to load business obstacles (${response.status})`);
+  }
+
+  return response.json() as Promise<PaginatedResponse<BusinessObstacle>>;
+}

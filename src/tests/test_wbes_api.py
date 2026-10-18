@@ -118,7 +118,9 @@ def test_wbes_metadata_returns_methodology_and_limitations(client):
         "World Bank Enterprise Survey, Nepal 2023"
     )
     assert response.data["weighting"]["primary_weight"] == "wmedian"
-    assert "major or severe" in response.data["measure"]
+    assert "major or very severe" in response.data["measure"]
+    assert "May–August 2023" == response.data["survey_period"]
+    assert "denominator" in response.data["weighting"]["weighted_share"]
     assert any(
         "not represent every business" in limitation
         for limitation in response.data["limitations"]

@@ -140,6 +140,30 @@ function ExplorerDataPage() {
                 Browse indicators <span aria-hidden="true">→</span>
               </button>
             </article>
+
+            <article className="dataset-card">
+              <div className="dataset-card-top">
+                <span className="dataset-category">ECONOMY · FIRM SURVEY</span>
+                <span className="dataset-year">2023</span>
+              </div>
+
+              <h3>World Bank Enterprise Survey</h3>
+              <p>
+                Explore the business obstacles reported by surveyed formal-sector
+                establishments in Nepal, including political instability, access
+                to finance, taxation, and infrastructure.
+              </p>
+
+              <div className="dataset-meta">
+                <span>Geographic coverage: Nepal</span>
+                <span>Coverage: Eligible formal-sector establishments</span>
+              </div>
+
+              <Link className="dataset-link" to="/business-environment">
+                Explore business environment{" "}
+                <span aria-hidden="true">→</span>
+              </Link>
+            </article>
           </div>
 
           <div className="catalog-note">

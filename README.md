@@ -8,9 +8,9 @@ The project currently integrates three datasets:
 2. **World Development Indicators (WDI):** Development indicators for Nepal, organized by indicator, country, and year.
 3. **World Bank Enterprise Survey (WBES), Nepal 2023:** Survey-weighted and unweighted statistics describing business obstacles reported by eligible formal-sector establishments.
 
-The backend uses Python, PostgreSQL, Django, and Django REST Framework. Population and WDI data are stored in PostgreSQL, while the WBES API serves summarized statistics from a processed CSV file. A React and TypeScript frontend provides an interface for exploring development indicators and their historical trends.
+The backend uses Python, PostgreSQL, Django, and Django REST Framework. Population and WDI data are stored in PostgreSQL, while the WBES API serves summarized statistics from a processed CSV file. A React and TypeScript frontend provides interfaces for exploring development indicators and their historical trends, as well as reported business obstacles.
 
-Automated tests cover important parts of the data pipeline, database imports, validation, and API behavior.
+Automated tests cover important parts of the data pipeline, database imports, validation, transformations, and API behavior.
 
 ## Datasets
 
@@ -53,11 +53,12 @@ These counts describe the current processed dataset and may change when the sour
 - **Processed file:** `data/processed/wbes_2023/business_obstacles.csv`
 - **Survey cases:** 582
 - **Output:** 14 summarized business-obstacle indicators
-- **Survey period:** May-August 2023
+- **Survey period:** May–August 2023
+- **Survey documentation:** `src/docs/data-sources/ddi-documentation-english_microdata-6457.pdf`
 
-The pipeline calculates the unweighted share and survey-weighted share of valid responses rating each obstacle as a major or severe constraint. The primary weighted measure uses the survey's `wmedian` sampling weight.
+The pipeline calculates the unweighted share and survey-weighted share of valid responses rating each obstacle as a major or very severe constraint. The primary weighted measure uses the survey's `wmedian` sampling weight.
 
-Ratings of 3 and 4 count as major or severe. Missing ratings and special response codes, including not applicable (`-7`) and don't know (`-9`), are excluded. The excluded-response count combines these categories.
+Ratings of 3 and 4 count as major or very severe. Valid ratings range from 0 to 4. Missing ratings and special response codes, including not applicable (`-7`) and don't know (`-9`), are excluded. The excluded-response count combines these categories.
 
 **Coverage limitation:** The survey covers eligible formal-sector establishments with at least five employees, subject to the survey's sector and ownership eligibility criteria. It does not represent every business in Nepal.
 
@@ -79,7 +80,7 @@ Check the source providers' terms of use before redistributing datasets or deriv
 - Calculates documented, survey-weighted and unweighted business-obstacle statistics from WBES data.
 - Exposes population records, indicator metadata, indicator observations, and WBES summaries through read-only REST API endpoints.
 - Supports filtering and pagination for API queries.
-- Provides a frontend for browsing indicators and viewing historical trends.
+- Provides a frontend for browsing development indicators, viewing historical trends, and exploring WBES business-obstacle statistics.
 - Uses automated tests to check transformation, import, validation, and API behavior.
 
 ## Tech Stack
@@ -122,8 +123,8 @@ nepal-data-infrastructure/
 │   │   ├── components/
 │   │   │   ├── hero/
 │   │   │   └── navbar/
-│   │   ├── pages/                   # Home, explorer, indicator detail
-│   │   ├── services/                # API client
+│   │   ├── pages/                  # Home, explorer, detail, business environment
+│   │   ├── services/               # API client
 │   │   ├── main.tsx
 │   │   └── index.css
 │   ├── package.json
@@ -140,7 +141,8 @@ nepal-data-infrastructure/
 │   ├── wbes/                        # WBES API and serializers
 │   ├── tests/                       # Automated tests
 │   ├── docs/
-│   │   └── api.md                   # API reference
+│   │   ├── api.md                   # API reference
+│   │   └── data-sources/            # Source documentation
 │   └── manage.py
 ├── .env.example
 ├── .gitignore
@@ -350,16 +352,18 @@ The current application includes:
 - **Home page:** Landing page for the project.
 - **Indicator explorer:** Browse available development indicators.
 - **Indicator detail page:** View historical observations, trend charts, and summary statistics for an individual indicator.
+- **Business Environment page:** Explore weighted and unweighted WBES business-obstacle statistics, response coverage, and survey limitations.
 
-The frontend currently focuses on WDI indicator exploration. The population and WBES APIs are available in the backend, but population and WBES data have not yet been integrated into the frontend.
+The frontend includes WDI indicator exploration and a Business Environment page for exploring WBES business-obstacle statistics. Population data remains available through the backend API but has not yet been integrated into the frontend.
 
 ### Requirements
 
 - Node.js and npm
 - A configured PostgreSQL database
 - The Django backend with the required population and WDI data imported
+- The processed WBES CSV available for the Business Environment page
 
-The WBES API additionally requires its processed CSV output to be available.
+The WBES API requires its processed CSV output to be available at `data/processed/wbes_2023/business_obstacles.csv`. Generate this file using the WBES transformation command before using the WBES frontend features.
 
 ### Install frontend dependencies
 
@@ -424,8 +428,7 @@ Other limitations include:
 - WDI observations currently cover the processed Nepal dataset, not the entire global WDI database.
 - WBES statistics describe reported perceptions among eligible formal-sector establishments, not every business in Nepal.
 - WBES obstacle statistics do not establish causal effects on business performance.
-- The population frontend integration has not yet been implemented.
-- The frontend does not yet integrate WBES data.
+- Population frontend integration has not yet been implemented.
 - Geographic identifiers must be interpreted according to the relevant dataset and geographic definitions.
 - Indicator charts and summary statistics should be interpreted in the context of each indicator's units, coverage, and missing observations.
 - The APIs are read-only and do not currently provide authentication or authorization.
@@ -451,7 +454,6 @@ Other limitations include:
 - Expand data-coverage, missing-value, and quality information.
 - Develop additional time-series analytics.
 - Integrate population data into the frontend.
-- Explore frontend integration of WBES business-obstacle statistics.
 - Expand geographic analysis using Nepal's province, district, and local-government data.
 
 ### Deployment

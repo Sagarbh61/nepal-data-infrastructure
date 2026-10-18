@@ -70,6 +70,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 
+
 class WBESMetadataView(APIView):
     def get(self, request):
         metadata = {
@@ -82,12 +83,16 @@ class WBESMetadataView(APIView):
             ),
             "measure": (
                 "Share of valid responses rating a business obstacle "
-                "as a major or severe constraint."
+                "as a major or very severe constraint. Valid responses "
+                "are ratings from 0 to 4; missing ratings and special "
+                "response codes are excluded."
             ),
             "weighting": {
                 "primary_weight": "wmedian",
                 "weighted_share": (
-                    "Uses the survey's wmedian sampling weight."
+                    "Uses the survey's wmedian sampling weight. "
+                    "The denominator is the sum of weights for valid "
+                    "responses to each question."
                 ),
                 "unweighted_share": (
                     "Uses valid responses without sampling weights."
@@ -102,11 +107,12 @@ class WBESMetadataView(APIView):
                     "The figures measure reported perceptions, "
                     "not causal effects on business performance."
                 ),
-(
-    "Missing ratings and special response codes, including "
-    "not applicable (-7) and don't know (-9), are excluded. "
-    "The excluded count combines these categories."
-)
+                (
+                    "Missing ratings and special response codes, "
+                    "including not applicable (-7) and don't know "
+                    "(-9), are excluded. The excluded count combines "
+                    "these categories."
+                ),
             ],
         }
 
