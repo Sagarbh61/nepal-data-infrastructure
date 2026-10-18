@@ -12,6 +12,7 @@ function Navbar() {
 
           <nav className="nav-links">
             <Link to="/explore">Explore data</Link>
+
           </nav>
         </div>
 

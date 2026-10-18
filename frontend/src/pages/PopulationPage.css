@@ -1,0 +1,403 @@
+
+.population-page {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 40px 64px;
+  color: #202520;
+}
+
+.population-header {
+  padding: 64px 0 42px;
+  border-bottom: 1px solid #e5e8e5;
+}
+
+.population-header h1 {
+  margin: 8px 0 14px;
+  font-size: clamp(34px, 4vw, 48px);
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+}
+
+.population-header > p:not(.eyebrow) {
+  max-width: 680px;
+  color: #656b66;
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #29513d;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.census-badge {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 8px 11px;
+  border: 1px solid #dfe6df;
+  border-radius: 6px;
+  color: #29513d;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.population-status {
+  padding: 28px 0;
+  color: #656b66;
+}
+
+.population-error {
+  color: #a12828;
+}
+
+.population-overview {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  padding: 28px 0 42px;
+}
+
+.population-stat {
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid #e5e8e5;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.population-stat p {
+  margin: 0 0 16px;
+  color: #656b66;
+  font-size: 14px;
+}
+
+.population-stat strong {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: clamp(24px, 2.4vw, 32px);
+  line-height: 1.2;
+  letter-spacing: -0.7px;
+}
+
+.population-stat span {
+  display: block;
+  margin-top: 10px;
+  color: #656b66;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.population-explorer-section {
+  padding: 4px 0 44px;
+}
+
+.population-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.population-section-heading h2,
+.population-methodology h2 {
+  margin: 0 0 8px;
+  font-size: 23px;
+  letter-spacing: -0.4px;
+}
+
+.population-section-heading p {
+  margin: 0;
+  color: #656b66;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.population-record-count {
+  flex-shrink: 0;
+  color: #656b66;
+  font-size: 13px;
+}
+
+.population-filters {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.8fr) minmax(150px, 0.8fr) minmax(220px, 1.5fr) auto;
+  align-items: end;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.population-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.population-filter label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.population-filter select,
+.population-filter input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #d7ddd8;
+  border-radius: 7px;
+  background: white;
+  color: #202520;
+  font: inherit;
+  font-size: 14px;
+}
+
+.population-filter select:focus,
+.population-filter input:focus {
+  outline: 2px solid #a7b9aa;
+  outline-offset: 1px;
+}
+
+.population-reset {
+  min-height: 44px;
+  padding: 10px 13px;
+  border: 1px solid #d7ddd8;
+  border-radius: 7px;
+  background: white;
+  color: #202520;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.population-reset:hover {
+  background: #f7f8f6;
+}
+
+.population-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e5e8e5;
+  border-radius: 9px;
+}
+
+.population-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.population-table th,
+.population-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #e5e8e5;
+  white-space: nowrap;
+}
+
+.population-table th {
+  background: #f7f8f6;
+  color: #4d554e;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.population-table td {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.population-table th button {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.population-table th button:hover {
+  color: #29513d;
+}
+
+.population-table tbody tr:hover {
+  background: #fafbf9;
+}
+
+.population-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.population-location-name {
+  min-width: 220px;
+  font-weight: 600;
+}
+
+.population-empty {
+  padding: 28px;
+  color: #656b66;
+  text-align: center;
+}
+
+.population-methodology {
+  padding: 30px 0 0;
+  border-top: 1px solid #e5e8e5;
+}
+
+.population-methodology h2 {
+  margin-top: 10px;
+}
+
+.population-methodology p:not(.eyebrow) {
+  max-width: 850px;
+  color: #656b66;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.population-charts {
+  margin: 36px 0;
+}
+
+.population-chart-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 22px;
+  margin-top: 22px;
+}
+
+.population-chart-card {
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid #e5e8e5;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.population-chart-heading h3 {
+  margin: 0 0 7px;
+  color: #202520;
+  font-size: 17px;
+}
+
+.population-chart-heading p {
+  margin: 0;
+  color: #6b726c;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.population-chart {
+  width: 100%;
+  height: 340px;
+  margin-top: 20px;
+}
+
+.population-sex-chart {
+  height: 300px;
+}
+
+.population-chart-note {
+  margin: 10px 0 0;
+  color: #6b726c;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.population-sex-breakdown {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.population-sex-breakdown > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #555e57;
+  font-size: 13px;
+}
+
+.population-sex-breakdown strong {
+  margin-left: auto;
+  color: #202520;
+  font-variant-numeric: tabular-nums;
+}
+
+.population-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.male-dot {
+  background: #397653;
+}
+
+.female-dot {
+  background: #8cb8a0;
+}
+
+@media (max-width: 850px) {
+  .population-chart-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 500px) {
+  .population-chart-card {
+    padding: 16px;
+  }
+
+  .population-chart {
+    height: 300px;
+  }
+
+  .population-sex-chart {
+    height: 280px;
+  }
+}
+
+
+@media (max-width: 1000px) {
+  .population-overview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .population-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .population-page {
+    padding: 0 20px 44px;
+  }
+
+  .population-header {
+    padding: 42px 0 30px;
+  }
+
+  .population-overview {
+    gap: 10px;
+    padding: 20px 0 32px;
+  }
+
+  .population-stat {
+    padding: 16px;
+  }
+
+  .population-section-heading {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .population-filters {
+    grid-template-columns: 1fr;
+  }
+}

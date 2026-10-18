@@ -1,15 +1,16 @@
 # Nepal Data Infrastructure
 
-Nepal Data Infrastructure (NDI) is a data engineering project for collecting, validating, transforming, storing, and serving Nepal-specific datasets.
+Nepal Data Infrastructure (NDI) is a data engineering project for collecting, validating, transforming, storing, and serving Nepal-specific datasets through documented, read-only APIs.
 
-The project currently integrates two datasets:
+The project currently integrates three datasets:
 
 1. **National Population and Housing Census 2021 (NPHC 2021):** Local-government population and household statistics.
 2. **World Development Indicators (WDI):** Development indicators for Nepal, organized by indicator, country, and year.
+3. **World Bank Enterprise Survey (WBES), Nepal 2023:** Survey-weighted and unweighted statistics describing business obstacles reported by eligible formal-sector establishments.
 
-The backend uses Python, PostgreSQL, Django, and Django REST Framework to process datasets and provide read-only API access. A React and TypeScript frontend provides an interface for exploring development indicators and their historical trends.
+The backend uses Python, PostgreSQL, Django, and Django REST Framework. Population and WDI data are stored in PostgreSQL, while the WBES API serves summarized statistics from a processed CSV file. A React and TypeScript frontend provides an interface for exploring development indicators and their historical trends.
 
-Automated tests cover important parts of the data pipeline, database import process, validation, and API behavior.
+Automated tests cover important parts of the data pipeline, database imports, validation, and API behavior.
 
 ## Datasets
 
@@ -44,18 +45,39 @@ Missing source observations are preserved as missing values rather than converte
 
 These counts describe the current processed dataset and may change when the source data or processing rules are updated.
 
+### 3. World Bank Enterprise Survey (WBES), Nepal 2023
+
+- **Dataset:** Business obstacles reported by eligible formal-sector establishments
+- **Source:** [World Bank Enterprise Surveys](https://www.enterprisesurveys.org/)
+- **Raw file:** `data/raw/wbes_2023/Nepal-2023-full-data.dta`
+- **Processed file:** `data/processed/wbes_2023/business_obstacles.csv`
+- **Survey cases:** 582
+- **Output:** 14 summarized business-obstacle indicators
+- **Survey period:** May-August 2023
+
+The pipeline calculates the unweighted share and survey-weighted share of valid responses rating each obstacle as a major or severe constraint. The primary weighted measure uses the survey's `wmedian` sampling weight.
+
+Ratings of 3 and 4 count as major or severe. Missing ratings and special response codes, including not applicable (`-7`) and don't know (`-9`), are excluded. The excluded-response count combines these categories.
+
+**Coverage limitation:** The survey covers eligible formal-sector establishments with at least five employees, subject to the survey's sector and ownership eligibility criteria. It does not represent every business in Nepal.
+
+The statistics measure respondents' reported perceptions of business obstacles. They do not establish that an obstacle caused a particular business outcome.
+
 ### Data availability
 
-Raw and processed data files are excluded from Git. Download the required source datasets and place them at the paths specified above before running the relevant pipelines. Check the source providers' terms of use before redistributing data.
+Raw and processed data files are excluded from Git. Obtain the required source datasets separately and place them at the paths specified in this README before running the relevant pipelines.
+
+Check the source providers' terms of use before redistributing datasets or derived data.
 
 ## What It Does
 
 - Profiles source datasets and identifies data-quality issues.
 - Validates geographic identifiers, population totals, and numeric values.
 - Transforms source files into consistent, structured datasets.
-- Imports validated records into PostgreSQL using transactional database operations.
+- Imports validated population and WDI records into PostgreSQL using transactional database operations.
 - Supports repeatable imports without creating duplicate records for existing keys.
-- Exposes population records, indicator metadata, and indicator observations through read-only REST API endpoints.
+- Calculates documented, survey-weighted and unweighted business-obstacle statistics from WBES data.
+- Exposes population records, indicator metadata, indicator observations, and WBES summaries through read-only REST API endpoints.
 - Supports filtering and pagination for API queries.
 - Provides a frontend for browsing indicators and viewing historical trends.
 - Uses automated tests to check transformation, import, validation, and API behavior.
@@ -84,38 +106,41 @@ Raw and processed data files are excluded from Git. Download the required source
 
 ```text
 nepal-data-infrastructure/
-├── data/                          # Local datasets; excluded from Git
-│   ├── raw/
+├── data/
+│   ├── raw/                         # Source datasets; excluded from Git
 │   │   ├── nphc_2021/
-│   │   └── wdi_nepal/
-│   └── processed/
+│   │   ├── wdi_nepal/
+│   │   └── wbes_2023/
+│   └── processed/                   # Generated datasets; excluded from Git
 │       ├── nphc_2021/
-│       └── wdi_nepal/
+│       ├── wdi_nepal/
+│       └── wbes_2023/
 ├── frontend/
 │   ├── src/
-│   │   ├── app/                   # Application and routes
-│   │   ├── assets/                # Images and static assets
+│   │   ├── app/                     # Application and routes
+│   │   ├── assets/                  # Images and static assets
 │   │   ├── components/
 │   │   │   ├── hero/
 │   │   │   └── navbar/
-│   │   ├── pages/                 # Home, explorer, indicator detail
-│   │   ├── services/              # API client
+│   │   ├── pages/                   # Home, explorer, indicator detail
+│   │   ├── services/                # API client
 │   │   ├── main.tsx
 │   │   └── index.css
 │   ├── package.json
 │   └── vite.config.ts
 ├── src/
-│   ├── config/                    # Django configuration and root URLs
+│   ├── config/                      # Django configuration and root URLs
 │   ├── ndi/
-│   │   ├── profiling/             # Data profiling
-│   │   ├── transformation/        # Data transformation
-│   │   ├── validation/            # Data validation
+│   │   ├── profiling/               # Data profiling
+│   │   ├── transformation/          # Dataset transformation
+│   │   ├── validation/              # Data validation
 │   │   └── ...
-│   ├── population/                # Population models, API, importer
-│   ├── indicators/                # Indicator models, API, importer
-│   ├── tests/                     # Automated tests
+│   ├── population/                  # Population models, API, importer
+│   ├── indicators/                  # WDI models, API, importer
+│   ├── wbes/                        # WBES API and serializers
+│   ├── tests/                       # Automated tests
 │   ├── docs/
-│   │   └── api.md                 # API reference
+│   │   └── api.md                   # API reference
 │   └── manage.py
 ├── .env.example
 ├── .gitignore
@@ -148,16 +173,19 @@ py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
+Use the virtual environment's Python executable for subsequent backend commands.
+
 ### 4. Obtain the source datasets
 
-Place the downloaded source files at these paths:
+Place the downloaded files at these paths:
 
 ```text
 data/raw/nphc_2021/Indv01_PopulationBySex.csv
 data/raw/wdi_nepal/API_NPL_DS2_en_csv_v2_18651.csv
+data/raw/wbes_2023/Nepal-2023-full-data.dta
 ```
 
-The source files are excluded from Git and must be obtained separately.
+The source files are excluded from Git and must be obtained separately. The WBES pipeline requires the 2023 Nepal formal-sector survey file; other survey years or the separate informal-sector survey are not interchangeable without an explicit methodological decision.
 
 ### 5. Configure the environment
 
@@ -190,7 +218,7 @@ Run from the repository root:
 
 ## Data Pipelines
 
-Run the commands from the repository root after completing the setup.
+Run the commands from the repository root after completing the setup and obtaining the relevant source files.
 
 ### 1. NPHC 2021 population pipeline
 
@@ -216,7 +244,7 @@ This checks population totals, geographic identifiers and hierarchy, and aggrega
 .\.venv\Scripts\python.exe src\ndi\transformation\transform_population.py
 ```
 
-The transformation selects local-government records, standardizes column names, and writes the processed dataset to:
+The transformation selects local-government records, standardizes column names, and writes:
 
 `data/processed/nphc_2021/local_government_population.csv`
 
@@ -260,9 +288,25 @@ After generating the processed CSV, run:
 
 The importer validates the input before writing to the database, uses an atomic transaction, and supports repeatable imports without creating duplicate records for existing keys.
 
+### 3. World Bank Enterprise Survey pipeline
+
+#### Transform the data
+
+```powershell
+.\.venv\Scripts\python.exe src\ndi\transformation\transform_wbes_obstacles.py
+```
+
+The transformation reads the Nepal 2023 WBES source data and generates:
+
+`data/processed/wbes_2023/business_obstacles.csv`
+
+The output summarizes 14 business obstacles, including response counts, excluded-response counts, unweighted shares, and shares calculated using the `wmedian` survey weight.
+
+The processed CSV is served directly by the Django WBES API. The current implementation does not import these summarized WBES records into PostgreSQL.
+
 ## Database and API
 
-The Django application stores population records and WDI indicator data in PostgreSQL.
+The Django application stores population records and WDI indicator data in PostgreSQL. The WBES business-obstacle API reads its summarized statistics from a processed CSV file and exposes survey-methodology metadata through a separate endpoint.
 
 The API is read-only and exposes the following endpoints:
 
@@ -272,12 +316,16 @@ The API is read-only and exposes the following endpoints:
 | GET | `/api/indicators/` | List indicator metadata |
 | GET | `/api/indicators/<code>/` | Retrieve an indicator by code |
 | GET | `/api/observations/` | List and filter indicator observations |
+| GET | `/api/wbes/business-obstacles/` | List summarized business-obstacle statistics |
+| GET | `/api/wbes/metadata/` | Retrieve WBES methodology and limitations |
 
 List endpoints use page-number pagination with a default page size of 100 records.
 
 The population API supports filtering by census year, province code, district code, and local-government code. Multiple filters can be combined.
 
 The observation API supports filtering by country code, year, and indicator code. Decimal values are returned as strings to preserve precision, and missing values are represented as `null`.
+
+The WBES business-obstacles endpoint returns weighted and unweighted shares for valid responses. Its metadata endpoint documents the survey population, weighting method, measurement approach, and limitations. These statistics should not be generalized to all businesses in Nepal.
 
 ### Run the backend server
 
@@ -303,13 +351,15 @@ The current application includes:
 - **Indicator explorer:** Browse available development indicators.
 - **Indicator detail page:** View historical observations, trend charts, and summary statistics for an individual indicator.
 
-The frontend currently focuses on WDI indicator exploration. The population API is available in the backend, but population data has not yet been integrated into the frontend.
+The frontend currently focuses on WDI indicator exploration. The population and WBES APIs are available in the backend, but population and WBES data have not yet been integrated into the frontend.
 
 ### Requirements
 
 - Node.js and npm
 - A configured PostgreSQL database
-- The Django backend with the required data imported
+- The Django backend with the required population and WDI data imported
+
+The WBES API additionally requires its processed CSV output to be available.
 
 ### Install frontend dependencies
 
@@ -359,7 +409,7 @@ $env:PYTHONPATH = "src"
 .\.venv\Scripts\python.exe -m pytest src\tests -q
 ```
 
-The suite covers important parts of data transformation, database import behavior, validation, API filtering, pagination, and decimal representation.
+The suite covers data transformation, database import behavior, validation, API filtering and pagination, decimal representation, and WBES API and methodology behavior.
 
 Run the suite after changes to verify that existing behavior remains correct. Test counts may change as coverage expands.
 
@@ -369,12 +419,16 @@ The validation pipeline checks internal consistency, including population totals
 
 Other limitations include:
 
-- The current implementation focuses on selected datasets rather than a comprehensive national data platform.
+- The project focuses on selected datasets rather than a comprehensive national data platform.
+- NPHC population figures describe the 2021 census, not current population estimates.
 - WDI observations currently cover the processed Nepal dataset, not the entire global WDI database.
+- WBES statistics describe reported perceptions among eligible formal-sector establishments, not every business in Nepal.
+- WBES obstacle statistics do not establish causal effects on business performance.
 - The population frontend integration has not yet been implemented.
+- The frontend does not yet integrate WBES data.
 - Geographic identifiers must be interpreted according to the relevant dataset and geographic definitions.
 - Indicator charts and summary statistics should be interpreted in the context of each indicator's units, coverage, and missing observations.
-- The API is read-only and does not currently provide authentication or authorization.
+- The APIs are read-only and do not currently provide authentication or authorization.
 - Source datasets are managed separately from the Git repository.
 - Production deployment and configuration have not yet been completed.
 
@@ -387,6 +441,7 @@ Other limitations include:
 - Add additional datasets relevant to Nepal.
 - Improve API documentation and data dictionaries.
 - Continue improving API filtering and query efficiency.
+- Evaluate whether additional datasets should be stored in PostgreSQL or served from validated processed files.
 
 ### Analytics and frontend
 
@@ -396,6 +451,7 @@ Other limitations include:
 - Expand data-coverage, missing-value, and quality information.
 - Develop additional time-series analytics.
 - Integrate population data into the frontend.
+- Explore frontend integration of WBES business-obstacle statistics.
 - Expand geographic analysis using Nepal's province, district, and local-government data.
 
 ### Deployment

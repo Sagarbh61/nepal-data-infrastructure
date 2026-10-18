@@ -342,3 +342,103 @@ These figures describe the currently processed dataset, not necessarily the comp
 - The observation API exposes a single country code, year, and indicator code as filters; it does not yet provide a dedicated time-series endpoint.
 - No authentication or authorization is currently configured.
 - This reference should be updated when API behavior changes.
+
+---
+
+# World Bank Enterprise Survey (WBES) API Reference
+
+## Overview
+
+The WBES API provides read-only access to processed business-obstacle statistics from the World Bank Enterprise Survey, Nepal 2023.
+
+- **Base URL (local development):** `http://127.0.0.1:8000`
+- **Response format:** JSON
+- **Authentication:** No authentication is currently configured.
+- **Pagination:** Page-number pagination, 100 records per page for the list endpoint.
+
+The 2023 survey covers eligible formal-sector establishments with at least five employees, subject to the survey's sector and ownership eligibility criteria. It does not represent every business in Nepal.
+
+## 1. List business obstacles
+
+**Endpoint:** `GET /api/wbes/business-obstacles/`
+
+Returns summary statistics for the business obstacles measured by the survey.
+
+Example:
+
+```http
+GET /api/wbes/business-obstacles/
+```
+
+### Response fields
+
+| Field | Type | Description |
+|---|---|---|
+| `obstacle` | String | Identifier for the business obstacle |
+| `label` | String | Human-readable obstacle name |
+| `weight` | String | Survey weighting method used for the summary |
+| `total_records` | Integer | Total records represented in the processed dataset |
+| `valid_responses` | Integer | Responses with valid obstacle ratings |
+| `excluded_responses` | Integer | Missing or special-code responses excluded from the calculation |
+| `major_or_severe_responses` | Integer | Valid responses rating the obstacle as major or severe |
+| `unweighted_share` | Number | Share of valid responses rating the obstacle as major or severe, without survey weights |
+| `weighted_share` | Number | Corresponding share calculated using survey weights |
+
+The share fields are proportions between 0 and 1. For example, `0.25` represents 25%.
+
+### Methodology
+
+Obstacle ratings of 3 or 4 are classified as major or severe. Ratings of 0, 1, and 2 remain valid responses but do not count toward the major-or-severe numerator.
+
+The primary weighted measure uses the survey's `wmedian` sampling weight. The unweighted measure uses valid responses without sampling weights.
+
+Missing ratings and special response codes, including `-7` (not applicable) and `-9` (don't know), are excluded. The `excluded_responses` field combines these categories rather than reporting each category separately.
+
+These statistics describe respondents' reported perceptions of business obstacles. They do not establish that an obstacle caused a particular business outcome.
+
+## 2. Retrieve methodology and limitations
+
+**Endpoint:** `GET /api/wbes/metadata/`
+
+Example:
+
+```http
+GET /api/wbes/metadata/
+```
+
+Returns metadata describing the survey period, covered population, measurement approach, weighting method, and limitations.
+
+Use this endpoint alongside the business-obstacles endpoint when interpreting or presenting the statistics.
+
+## 3. Pagination
+
+The business-obstacles list endpoint uses page-number pagination, with a default page size of 100 records.
+
+Paginated responses contain:
+
+| Field | Meaning |
+|---|---|
+| `count` | Total number of matching records |
+| `next` | URL for the next page, or `null` |
+| `previous` | URL for the previous page, or `null` |
+| `results` | Records on the current page |
+
+Example:
+
+```http
+GET /api/wbes/business-obstacles/?page=2
+```
+
+An invalid page number returns HTTP `404 Not Found`.
+
+## 4. Data availability and limitations
+
+The API reads a processed CSV file generated from the Nepal 2023 survey. The raw survey file and processed output are managed separately from Git and must be obtained or generated through the project's data pipeline.
+
+The findings apply to the survey's eligible formal-sector establishments, not to every enterprise in Nepal. They measure reported perceptions and should not be interpreted as causal estimates of business performance.
+
+## 5. Errors
+
+If the processed dataset is missing or fails validation, the endpoint returns HTTP `500 Internal Server Error` with a controlled error message indicating that the processed WBES dataset is unavailable or invalid.
+
+This API is read-only and currently has no authentication or authorization configured.

@@ -1,5 +1,21 @@
 const API_BASE_URL = "http://127.0.0.1:8000/api";
 
+
+export interface LocalGovernmentPopulation {
+  census_year: number;
+  province_code: number;
+  district_code: number;
+  local_government_code: number;
+  province_name: string;
+  district_name: string;
+  local_government_name: string;
+  households: number;
+  population_total: number;
+  population_male: number;
+  population_female: number;
+}
+
+
 export interface Indicator {
   code: string;
   name: string;
@@ -90,5 +106,57 @@ export async function fetchObservations(
     next: null,
     previous,
     results: allObservations,
+  };
+}
+
+
+
+export async function fetchPopulation(
+  filters: {
+    census_year?: number;
+    province_code?: number;
+    district_code?: number;
+    local_government_code?: number;
+  } = {},
+): Promise<PaginatedResponse<LocalGovernmentPopulation>> {
+  const params = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(filters)) {
+    if (value !== undefined) {
+      params.set(key, String(value));
+    }
+  }
+
+  let nextUrl: string | null =
+    `${API_BASE_URL}/population/?${params.toString()}`;
+
+  let totalCount = 0;
+  let previous: string | null = null;
+  const allRecords: LocalGovernmentPopulation[] = [];
+
+  while (nextUrl !== null) {
+    const response = await fetch(nextUrl);
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to load population data (${response.status})`,
+      );
+    }
+
+    const page =
+      (await response.json()) as PaginatedResponse<LocalGovernmentPopulation>;
+
+    totalCount = page.count;
+    previous = page.previous;
+    allRecords.push(...page.results);
+
+    nextUrl = page.next;
+  }
+
+  return {
+    count: totalCount,
+    next: null,
+    previous,
+    results: allRecords,
   };
 }
