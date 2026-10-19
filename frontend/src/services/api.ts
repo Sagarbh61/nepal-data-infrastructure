@@ -1,4 +1,12 @@
-const API_BASE_URL = "http://127.0.0.1:8000/api";
+
+const DEFAULT_API_BASE_URL = import.meta.env.PROD
+  ? "https://nepal-data-infrastructure-psi.vercel.app/api"
+  : "http://127.0.0.1:8000/api";
+
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL || DEFAULT_API_BASE_URL
+).replace(/\/$/, "");
+
 
 
 export interface LocalGovernmentPopulation {
