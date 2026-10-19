@@ -1,0 +1,15 @@
+﻿obstacle,label,weight,total_records,valid_responses,excluded_responses,major_or_severe_responses,unweighted_share,weighted_share
+j30e,How Much of An Obstacle: Political Instability,wmedian,582,582,0,329,0.5652920962199313,0.5915773910380178
+k30,How Much of An Obstacle: Access To Finance,wmedian,582,581,1,144,0.24784853700516352,0.2543110613103746
+j30a,How Much of An Obstacle: Tax Rates,wmedian,582,582,0,109,0.1872852233676976,0.19837907751846814
+c30a,How Much of An Obstacle: Electricity To Operations of This Establishment?,wmedian,582,582,0,125,0.21477663230240548,0.18375257224555033
+d30b,How Much of An Obstacle: Customs And Trade Regulations?,wmedian,582,581,1,90,0.1549053356282272,0.1652821426747898
+j30f,How Much of An Obstacle: Corruption,wmedian,582,582,0,82,0.140893470790378,0.15683542978469595
+e30,How Much of An Obstacle: Practices of Competitors In Informal Sector?,wmedian,582,535,47,57,0.10654205607476636,0.12119345826516147
+g30a,How Much of An Obstacle: Access To Land?,wmedian,582,582,0,34,0.058419243986254296,0.06517486496879653
+i30,"How Much of An Obstacle: Crime, Theft And Disorder?",wmedian,582,582,0,32,0.054982817869415807,0.06418939525700973
+d30a,How Much of An Obstacle: Transport?,wmedian,582,582,0,33,0.05670103092783505,0.06341283592754275
+j30b,How Much of An Obstacle: Tax Administrations,wmedian,582,582,0,28,0.048109965635738834,0.034889647673385475
+l30a,How Much of An Obstacle: Labor Regulations?,wmedian,582,582,0,9,0.015463917525773196,0.015529310843105123
+j30c,How Much of An Obstacle: Business Licensing And Permits,wmedian,582,582,0,6,0.010309278350515464,0.010205509741083758
+h30,How Much of An Obstacle: Courts,wmedian,582,581,1,3,0.0051635111876075735,0.0012390254428301065

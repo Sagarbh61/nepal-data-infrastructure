@@ -20,8 +20,16 @@ htmlcov/
 *.sqlite3
 *.db
 
+
 # Local source and processed datasets
 data/
+!data/
+data/*
+!data/processed/
+data/processed/*
+!data/processed/wbes_2023/
+data/processed/wbes_2023/*
+!data/processed/wbes_2023/business_obstacles.csv
 
 # Frontend dependencies and build output
 frontend/node_modules/
@@ -29,3 +37,5 @@ frontend/dist/
 
 # Local editor settings
 .vscode/
+
+src/staticfiles/
