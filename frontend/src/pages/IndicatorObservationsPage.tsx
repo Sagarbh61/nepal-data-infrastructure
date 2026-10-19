@@ -21,28 +21,28 @@ function IndicatorObservationsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+
   useEffect(() => {
     if (!code) {
-      setError("No indicator code was provided.");
-      setLoading(false);
       return;
     }
 
+    const indicatorCode = code;
     let cancelled = false;
 
-async function loadData() {
-  if (!code) return;
+    async function loadData() {
+      setLoading(true);
+      setError(null);
 
-  setLoading(true);
-  setError(null);
+      try {
+        const [indicatorData, observationsData] = await Promise.all([
+          fetchIndicator(indicatorCode),
+          fetchObservations(indicatorCode),
+        ]);
 
-  try {
-    const [indicatorData, observationsData] = await Promise.all([
-      fetchIndicator(code),
-      fetchObservations(code),
-    ]);;
-
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
 
         const sortedObservations = [...observationsData.results].sort(
           (a, b) => b.year - a.year,
@@ -51,7 +51,9 @@ async function loadData() {
         setIndicator(indicatorData);
         setObservations(sortedObservations);
       } catch (err) {
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
 
         setError(
           err instanceof Error
@@ -71,6 +73,24 @@ async function loadData() {
       cancelled = true;
     };
   }, [code]);
+
+
+  if (!code) {
+    return (
+      <main className="indicator-observations-page observations-page-content">
+        <p className="observations-page-error" role="alert">
+          No indicator code was provided.
+        </p>
+
+        <Link
+          to="/explore"
+          className="observations-page-back-link"
+        >
+          ← Back to Explore Data
+        </Link>
+      </main>
+    );
+  }
 
   if (loading) {
     return (
@@ -110,13 +130,12 @@ async function loadData() {
   return (
     <main className="indicator-observations-page">
       <header className="observations-page-header">
-           <Link
+        <Link
           to={`/indicators/${encodeURIComponent(indicator.code)}`}
           className="observations-page-back-link"
         >
           ← Back to indicator
         </Link>
-
 
         <h1>{indicator.name}</h1>
 
@@ -128,8 +147,6 @@ async function loadData() {
       </header>
 
       <section className="observations-page-content">
-
-
         <section>
           <div className="observations-page-section-heading">
             <h2>All observations</h2>
