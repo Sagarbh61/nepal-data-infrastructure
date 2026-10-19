@@ -8,6 +8,13 @@ https://docs.djangoproject.com/en/6.0/howto/deployment/wsgi/
 """
 
 import os
+import sys
+from pathlib import Path
+
+# Ensure the Django project under src/ is importable.
+SRC_DIR = str(Path(__file__).resolve().parent.parent)
+if SRC_DIR not in sys.path:
+    sys.path.insert(0, SRC_DIR)
 
 from django.core.wsgi import get_wsgi_application
 
