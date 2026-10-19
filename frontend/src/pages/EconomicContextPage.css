@@ -1,0 +1,217 @@
+
+.economic-context-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 32px 64px;
+  color: #202520;
+}
+
+.economic-context-header {
+  padding-bottom: 32px;
+  border-bottom: 1px solid #e5e8e5;
+}
+
+.economic-context-eyebrow {
+  color: #656b66;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.economic-context-header h1 {
+  margin: 12px 0;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.2;
+}
+
+.economic-context-header > p:last-child,
+.economic-context-section > p {
+  color: #656b66;
+  line-height: 1.7;
+}
+
+.economic-context-section {
+  min-width: 0;
+  padding: 32px 0;
+  border-bottom: 1px solid #e5e8e5;
+}
+
+.economic-context-section h2 {
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.economic-context-count {
+  font-size: 13px;
+}
+
+.economic-context-chart {
+  width: 100%;
+  min-width: 0;
+  margin-top: 24px;
+}
+
+.economic-context-error {
+  color: #a12828;
+}
+
+.economic-context-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.economic-context-link {
+  flex-shrink: 0;
+  color: #29513d;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.economic-context-link:hover {
+  text-decoration: underline;
+}
+
+.economic-context-link:focus-visible {
+  outline: 2px solid #29513d;
+  outline-offset: 3px;
+}
+
+.economic-context-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 24px;
+  border-top: 1px solid #e5e8e5;
+  border-bottom: 1px solid #e5e8e5;
+}
+
+.economic-context-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.economic-context-table th,
+.economic-context-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #e5e8e5;
+  line-height: 1.5;
+}
+
+.economic-context-table th {
+  background: #fdfbfb;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.economic-context-table td {
+  font-size: 14px;
+}
+
+.economic-context-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.economic-context-table td:nth-child(n + 2) {
+  font-variant-numeric: tabular-nums;
+}
+
+.economic-context-survey-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 32px;
+  border-top: 1px solid #e5e8e5;
+  border-bottom: 1px solid #e5e8e5;
+}
+
+.economic-context-survey-summary > div {
+  min-width: 0;
+  padding: 18px 20px 18px 0;
+}
+
+.economic-context-survey-summary > div:nth-child(even) {
+  padding-left: 20px;
+  border-left: 1px solid #e5e8e5;
+}
+
+.economic-context-survey-summary > div:nth-child(n + 3) {
+  border-top: 1px solid #e5e8e5;
+}
+
+.economic-context-summary-label {
+  margin: 0 0 8px;
+  color: #656b66;
+  font-size: 13px;
+}
+
+.economic-context-summary-value {
+  margin: 0;
+  color: #202520;
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.economic-context-methodology {
+  margin-top: 32px;
+}
+
+.economic-context-methodology h3 {
+  margin: 24px 0 10px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.economic-context-methodology p,
+.economic-context-methodology li {
+  color: #656b66;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.economic-context-methodology ul {
+  padding-left: 22px;
+}
+
+.economic-context-interpretation {
+  border-bottom: none;
+}
+
+@media (max-width: 680px) {
+  .economic-context-section-heading {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .economic-context-survey-summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .economic-context-survey-summary > div,
+  .economic-context-survey-summary > div:nth-child(even) {
+    padding: 16px 0;
+    border-left: none;
+  }
+
+  .economic-context-survey-summary > div + div {
+    border-top: 1px solid #e5e8e5;
+  }
+
+  .economic-context-table th,
+  .economic-context-table td {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 680px) {
+  .economic-context-page {
+    padding: 28px 20px 48px;
+  }
+
+  .economic-context-section {
+    padding: 24px 0;
+  }
+}

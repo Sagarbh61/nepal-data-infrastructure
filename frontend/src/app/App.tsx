@@ -9,6 +9,7 @@ import IndicatorChangesPage from "../pages/IndicatorChangesPage";
 import IndicatorObservationsPage from "../pages/IndicatorObservationsPage";
 import PopulationPage from "../pages/PopulationPage";
 import BusinessEnvironmentPage from "../pages/BusinessEnvironmentPage";
+import EconomicContextPage from "../pages/EconomicContextPage";
 
 function App() {
   return (
@@ -37,6 +38,10 @@ function App() {
           path="/business-environment"
           element={<BusinessEnvironmentPage />}
         />
+        <Route
+  path="/economic-context"
+  element={<EconomicContextPage />}
+/>
       </Routes>
 
     </>
