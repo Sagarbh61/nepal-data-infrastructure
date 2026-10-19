@@ -1,4 +1,4 @@
-import './hero.css';
+import './Hero.css';
 import { ArrowUpRight } from 'lucide-react';
 
 function Hero(){
