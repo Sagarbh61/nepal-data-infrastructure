@@ -4,7 +4,6 @@ services:
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt && python src/manage.py collectstatic --noinput
-    preDeployCommand: python src/manage.py migrate
     startCommand: cd src && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: DJANGO_SECRET_KEY
